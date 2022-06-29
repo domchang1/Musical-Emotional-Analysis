@@ -12,5 +12,7 @@ class RNN(nn.Module):
         self.rnn = nn.RNN(self.inp_dim, self.hidden_dim, self.n_layers, nonlinearity='relu')
         self.linear = nn.Linear(self.hidden_dim, self.out_dim)
     
-    def forward():
-        pass
+    def forward(self, input):
+        out = self.rnn(input)
+        out = self.linear(out)
+
