@@ -11,3 +11,5 @@ emotions = ["aggressive", "angry", "arousing", "boring", "calming", "cheerful", 
 "strong", "tender", "touching", "unpleasant", "unromantic"] 
 data_emotions = data.loc[data['label'].isin(emotions)]
 print(data_emotions)
+print(len(data_emotions.song.unique()))
+#how to load .mfcc and .mel? should we be doing multivariate classification?
