@@ -12,22 +12,19 @@ class RNN(nn.Module):
         self.mlp = MLP.MLP(self.inp_dim, 200)
         self.rnn = nn.RNN(200, self.hidden_dim, self.n_layers, nonlinearity='relu', batch_first=True)
         self.linear = nn.Linear(self.hidden_dim, self.out_dim)
-        self.softmax = nn.Softmax(-1)
-        self.pool = nn.MaxPool2d(2)
+        self.sigmoid = nn.Sigmoid()
     
     def forward(self, input):
         mlp = self.mlp(input)
         h0 = torch.zeros(self.n_layers,self.hidden_dim)
         # input.size(0), 
         out,_ = self.rnn(mlp, h0)
+        out = torch.unsqueeze(out, 0)
+        print(out.shape)
+        out = torch.max(out, dim=1, keepdim=False)[0]
         linear = self.linear(out)
-        predictions = self.softmax(linear)
+        predictions = self.sigmoid(linear)
         return predictions
 
 
-rnn = RNN(10,4,2)
-test = torch.randn(3, 10)
-output = rnn(test)
-print(output)
-print(output.shape)
 

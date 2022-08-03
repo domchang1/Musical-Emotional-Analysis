@@ -27,11 +27,11 @@ def processData():
     print(new_dict)
     emotions.remove('negative feelings')
     emotions.remove('not angry - agressive')
-    emotions.remove('not calming')
-    emotions.remove('not happy')
-    emotions.remove('not sad')
-    emotions.remove('unpleasant')
-    emotions.remove('unromantic')
+    # emotions.remove('not calming')
+    # emotions.remove('not happy')
+    # emotions.remove('not sad')
+    # emotions.remove('unpleasant')
+    # emotions.remove('unromantic')
     emotions.append('not angry')
     emotions.append('not aggressive')
     emotions.sort()
@@ -49,16 +49,22 @@ def processData():
             labels.append('not angry')
             labels.append('not aggressive')
         labels.sort()
-        mask = np.zeroes_like(emotions)
-        true_labels = np.zeroes_like(emotions)
+        mask = np.zeros(len(emotions))
+        true_labels = np.zeros(len(emotions))
         for i in range(len(mask)):
             if emotions[i] in labels:
                 mask[i] = 1
-            
-            
-        new_dict[key] = [mask]
-    
+                if not (emotions[i].startswith("not") or emotions[i].startswith("un")):
+                    true_labels[i] = 1
 
+            
+        new_dict[key] = [mask, true_labels]
+        # print(len(mask))
+        # print(len(true_labels))
+        # print(labels)
+        # print(new_dict[key])
+        # print("*"*100) 
+    
     exit()
     filenames = glob.glob('./mel_features/*.mel')
     mel = {}
@@ -83,7 +89,7 @@ def processData():
     labels_dst.write_bytes(pickle.dumps(labels))
     inputs_dst.write_bytes(pickle.dumps(inputs))
 
-
+processData()
 
 
 
