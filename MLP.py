@@ -7,11 +7,11 @@ class MLP(nn.Module):
         super().__init__()
         self.layers = nn.Sequential(
             # nn.Flatten(),
-            nn.Linear(input_dim, 240),
+            nn.Linear(input_dim, 32),
             nn.ReLU(),
-            nn.Linear(240, 120),
-            nn.ReLU(),
-            nn.Linear(120, output_dim)
+            # nn.Linear(240, 120),
+            # nn.ReLU(),
+            nn.Linear(32, output_dim)
         )
         # self.input_fc = nn.Linear(input_dim, 240)
         # self.hidden_fc = nn.Linear(240, 120)
