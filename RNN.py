@@ -24,8 +24,8 @@ class RNN(nn.Module):
         # print(out.shape)
         out = torch.max(out, dim=1, keepdim=False)[0]
         linear = self.linear(out)
-        predictions = self.sigmoid(linear)
-        return predictions
+        # predictions = self.sigmoid(linear)
+        return linear
 
 
 
