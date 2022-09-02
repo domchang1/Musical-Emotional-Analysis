@@ -10,9 +10,8 @@ class LSTM(nn.Module):
         self.inp_dim = inp_dim
         self.out_dim = out_dim
         self.mlp = MLP.MLP(self.inp_dim, 32)
-        self.lstm = nn.LSTM(32, self.hidden_dim, self.n_layers, nonlinearity='relu', batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(32, self.hidden_dim, self.n_layers, batch_first=True, bidirectional=True)
         self.linear = nn.Linear(2*self.hidden_dim, self.out_dim)
-        self.sigmoid = nn.Sigmoid()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     def forward(self, input):
@@ -24,8 +23,8 @@ class LSTM(nn.Module):
         # print(out.shape)
         out = torch.max(out, dim=1, keepdim=False)[0]
         linear = self.linear(out)
-        predictions = self.sigmoid(linear)
-        return predictions
+        
+        return linear
 
 
 
