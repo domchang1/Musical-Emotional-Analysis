@@ -15,4 +15,7 @@ for features, label in zip(inputs, labels):
     allMasks += torch.tensor(label[0]).to(device)
 print(allLabels)
 print(allMasks)
+print(allLabels / allMasks)
+
+
     

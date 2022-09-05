@@ -7,15 +7,15 @@ from pathlib import Path
 def processData():
     data = pd.read_csv('song_annotations.txt', delimiter='\t')
     data.columns = ["song", "label"]
-    print(data)
-    print(data.label.unique())
+    # print(data)
+    # print(data.label.unique())
     emotions = ["aggressive", "angry", "arousing", "boring", "calming", "cheerful", "cold", 
     "depressed", "emotional", "exciting", "happy", "lighthearted", "mellow", "morose", "negative", "negative feelings", "normal",
     "not angry - agressive", "not calming", "not happy", "not sad", "pleasant", "positive", "relax", "romantic", "rough", "sad", 
     "strong", "tender", "touching", "unpleasant", "unromantic"] 
     data_emotions = data.loc[data['label'].isin(emotions)]
     data_emotions.sort_values(by='song', axis=0, inplace=True)
-    print(data_emotions)
+    # print(data_emotions)
     new_dict = {}
     for _, row in data_emotions.iterrows():
         try:
@@ -24,18 +24,41 @@ def processData():
             new_dict[row['song']] = [row['label']]
         else:
             new_dict[row['song']].append(row['label'])
-    print(new_dict)
+    # print(new_dict)
+    old_dict = new_dict.copy()
     emotions.remove('negative feelings')
     emotions.remove('not angry - agressive')
-    # emotions.remove('not calming')
-    # emotions.remove('not happy')
-    # emotions.remove('not sad')
-    # emotions.remove('unpleasant')
-    # emotions.remove('unromantic')
-    emotions.append('not angry')
-    emotions.append('not aggressive')
-    emotions.sort()
+
+    emotions.remove('not calming')
+    emotions.remove('not happy')
+    emotions.remove('not sad')
+    emotions.remove('unpleasant')
+    emotions.remove('unromantic')
+    # emotions.append('not angry')
+    # emotions.append('not aggressive')
     
+    emotions.remove('arousing')
+    emotions.remove('boring')
+    emotions.remove('cheerful')
+    emotions.remove('cold')
+    emotions.remove('depressed')
+    emotions.remove('emotional')
+    emotions.remove('exciting')
+    emotions.remove('lighthearted')
+    emotions.remove('mellow')
+    emotions.remove('morose')
+    emotions.remove('negative')
+    emotions.remove('normal')
+    emotions.remove('positive')
+    emotions.remove('relax')
+    emotions.remove('rough')
+    emotions.remove('strong')
+    emotions.remove('tender')
+    emotions.remove('touching')
+
+    emotions.sort()
+    # print(emotions)
+    # exit()
 
     for key in new_dict:
         labels = new_dict[key]
@@ -51,11 +74,16 @@ def processData():
         labels.sort()
         mask = np.zeros(len(emotions))
         true_labels = np.zeros(len(emotions))
-        for i in range(len(mask)):
-            if emotions[i] in labels:
-                mask[i] = 1
-                if not (emotions[i].startswith("not") or emotions[i].startswith("un")):
-                    true_labels[i] = 1
+        for i in range(len(labels)):
+            
+            if (not (labels[i].startswith("not ") or labels[i].startswith("un")) and labels[i] in emotions):
+                index = emotions.index(labels[i])
+                mask[index] = 1
+                true_labels[index] = 1
+            if (labels[i].startswith("not ")):
+                mask[emotions.index(labels[i][4:])] = 1
+            if (labels[i].startswith("un")):
+                mask[emotions.index(labels[i][2:])] = 1
 
             
         new_dict[key] = [mask, true_labels]
@@ -64,8 +92,20 @@ def processData():
         # print(labels)
         # print(new_dict[key])
         # print("*"*100) 
+    # print(new_dict)
+    masks = np.zeros(len(emotions))
+    labels = np.zeros(len(emotions))
+    for key in new_dict:
+        # print(old_dict[key])
+        # print(new_dict[key])
+        # print()
+        masks += new_dict[key][0]
+        labels += new_dict[key][1]
+    print(emotions)
+    print(masks)
+    print(labels)
+    print(labels /masks)
     
-    exit()
     filenames = glob.glob('./mel_features/*.mel')
     mel = {}
     mfcc = {}
