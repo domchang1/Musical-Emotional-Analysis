@@ -11,7 +11,7 @@ import numpy as np
 
 
 def prediction_accuracy(output, label, mask):
-    output = (output > 0.5).long()
+    output = (output >= 0.0).long()
     return torch.eq(output, label).long() * mask
 
 # results_dst = Path(f"./RNNresults.pkl")
@@ -44,16 +44,35 @@ test_inputs = inputs[351:]
 test_labels = labels[351:]
 
 input = torch.tensor(inputs[0], dtype=torch.float32)
-model = LSTM.LSTM(input.shape[1], len(labels[0][0]), 20).to(device)
+model = LSTM.LSTM(input.shape[1], len(labels[0][0]), 128).to(device)
 criterion = nn.BCEWithLogitsLoss() #pos_weight=torch.ones([32])
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 recorded_losses = []
 recorded_accuracies = []
+overall_accuracies = torch.zeros(7).to(device)
+model.eval()
+masks = torch.zeros(7).to(device)
+curr_loss = 0
+for features, label in zip(train_inputs, train_labels):
+    data = torch.tensor(features, dtype=torch.float32).to(device)
+    output = model(data)
+    output = torch.squeeze(output)
+    masks += torch.tensor(label[0]).to(device)
+    loss = criterion(output, torch.tensor(label[1]).to(device))
+    loss = torch.inner(loss, torch.tensor(label[0]).to(device))
+    loss = torch.sum(loss)
+    curr_loss += loss.item()
+    overall_accuracies += prediction_accuracy(output, torch.tensor(label[1]).to(device), torch.tensor(label[0]).to(device))
+print('Loss %.3f' % (curr_loss))
+
+overall_accuracies /= masks
+print(overall_accuracies)
+    
 
 for epoch in range(50):
     curr_loss = 0.0
     model.train()
-    overall_accuracies = torch.zeros(32).to(device)
+    overall_accuracies = torch.zeros(7).to(device)
     for features, label in zip(train_inputs, train_labels):
         optimizer.zero_grad()
         data = torch.tensor(features, dtype=torch.float32).to(device)
@@ -68,7 +87,7 @@ for epoch in range(50):
         optimizer.step()
         
     model.eval()
-    masks = torch.zeros(32).to(device)
+    masks = torch.zeros(7).to(device)
     for features, label in zip(train_inputs, train_labels):
         data = torch.tensor(features, dtype=torch.float32).to(device)
         output = model(data)
@@ -82,8 +101,8 @@ for epoch in range(50):
     recorded_accuracies.append(overall_accuracies)
 
 model.eval()    
-masks = torch.zeros(32).to(device)
-train_accuracies = torch.zeros(32).to(device)
+masks = torch.zeros(7).to(device)
+train_accuracies = torch.zeros(7).to(device)
 for features, label in zip(train_inputs, train_labels):
     data = torch.tensor(features, dtype=torch.float32).to(device)
     output = model(data)
@@ -99,8 +118,8 @@ train_accuracies = torch.div(train_accuracies, masks)
 print(train_accuracies)
 
 
-masks = torch.zeros(32).to(device)
-test_accuracies = torch.zeros(32).to(device)
+masks = torch.zeros(7).to(device)
+test_accuracies = torch.zeros(7).to(device)
 for features, label in zip(test_inputs, test_labels):
     data = torch.tensor(features, dtype=torch.float32).to(device)
     output = model(data)

@@ -4,8 +4,8 @@ import pandas as pd
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-allLabels = torch.zeros(32).to(device)
-allMasks = torch.zeros(32).to(device)
+allLabels = torch.zeros(7).to(device)
+allMasks = torch.zeros(7).to(device)
 inputs_dst = Path(f"./inputs.pkl")
 labels_dst = Path(f"./labels.pkl")
 inputs = pd.read_pickle(inputs_dst)

@@ -2,3 +2,4 @@
 /mel_features
 /mfcc_features
 *.pkl
+*.pt
