@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pickle
 import numpy as np
+import CNN
 
 
 def prediction_accuracy(output, label, mask):
@@ -26,24 +27,34 @@ np.random.seed(0)
 order = [i for i in range(502)]
 np.random.shuffle(order)
 # print(order)
-inputs_dst = Path(f"./inputs.pkl")
+melInputs_dst = Path(f"./melInputs.pkl")
+mfccInputs_dst = Path(f"./mfccInputs.pkl")
 labels_dst = Path(f"./labels.pkl")
-inputs = pd.read_pickle(inputs_dst)
+melinputs = pd.read_pickle(melInputs_dst)
+mfccinputs = pd.read_pickle(mfccInputs_dst)
 labels = pd.read_pickle(labels_dst)
-new_inputs = []
+new_melinputs = []
+new_mfccinputs = []
 new_labels = []
 for i in order:
-    new_inputs.append(inputs[i])
+    new_melinputs.append(melinputs[i])
+    new_mfccinputs.append(mfccinputs[i])
     new_labels.append(labels[i])
-inputs = new_inputs
+melinputs = new_melinputs
+mfccinputs = new_mfccinputs
 labels = new_labels
 
+
+
+exit()
+inputs = 0
 train_inputs = inputs[:351]
 train_labels = labels[:351]
 test_inputs = inputs[351:]
 test_labels = labels[351:]
 
 input = torch.tensor(inputs[0], dtype=torch.float32)
+
 model = LSTM.LSTM(input.shape[1], len(labels[0][0]), 128).to(device)
 criterion = nn.BCEWithLogitsLoss() #pos_weight=torch.ones([32])
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)

@@ -118,16 +118,20 @@ def processData():
         mfcc[song] = np.loadtxt(filename, delimiter=',')
     features = {}
     for key in mel:
-        features[key] = np.concatenate((mel[key], mfcc[key]), axis=1)
+        features[key] = [mel[key], mfcc[key]]
     labels = []
-    inputs = []
+    melInputs = []
+    mfccInputs = []
     for key in new_dict:
         labels.append(new_dict[key])
-        inputs.append(features[key])
+        melInputs.append(mel[key])
+        mfccInputs.append(mfcc[key])
     labels_dst = Path(f"./labels.pkl")
-    inputs_dst = Path(f"./inputs.pkl")
+    melInputs_dst = Path(f"./melInputs.pkl")
+    mfccInputs_dst = Path(f"./mfccInputs.pkl")
     labels_dst.write_bytes(pickle.dumps(labels))
-    inputs_dst.write_bytes(pickle.dumps(inputs))
+    melInputs_dst.write_bytes(pickle.dumps(melInputs))
+    mfccInputs_dst.write_bytes(pickle.dumps(mfccInputs))
 
 processData()
 
