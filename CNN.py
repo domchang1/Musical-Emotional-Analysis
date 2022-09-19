@@ -5,7 +5,10 @@ import torch
 class CNN(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
-        self.conv1 = nn.Conv2d(input_dim, 10, 2)
+        self.conv1 = nn.Conv2d(1, 1, (1))
+        self.conv2 = nn.Conv2d(1,1,1)
+        
 
     def forward(self, x):
-        return self.conv1(x)
+        conv = self.conv2(F.relu(self.conv1(x)))
+        return torch.flatten(conv)

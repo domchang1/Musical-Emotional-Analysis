@@ -2,7 +2,10 @@ import torch
 from pathlib import Path
 import pandas as pd
 
-
+x = torch.randn(14, 16, 5)
+x = x.view(16, 70)
+print(x.shape)
+exit()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 allLabels = torch.zeros(7).to(device)
 allMasks = torch.zeros(7).to(device)

@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 import pickle
 import numpy as np
-import CNN
+
 
 
 def prediction_accuracy(output, label, mask):
@@ -45,17 +45,17 @@ mfccinputs = new_mfccinputs
 labels = new_labels
 
 
-
-exit()
 inputs = 0
-train_inputs = inputs[:351]
+train_melinputs = melinputs[:351]
+train_mfccinputs = mfccinputs[:351]
 train_labels = labels[:351]
-test_inputs = inputs[351:]
+test_melinputs = melinputs[351:]
+test_mfcciinputs = mfccinputs[351:]
 test_labels = labels[351:]
 
-input = torch.tensor(inputs[0], dtype=torch.float32)
+# input = torch.tensor(inputs[0], dtype=torch.float32)
 
-model = LSTM.LSTM(input.shape[1], len(labels[0][0]), 128).to(device)
+model = LSTM.LSTM(90, 7, 128).to(device)
 criterion = nn.BCEWithLogitsLoss() #pos_weight=torch.ones([32])
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 recorded_losses = []
@@ -64,9 +64,11 @@ overall_accuracies = torch.zeros(7).to(device)
 model.eval()
 masks = torch.zeros(7).to(device)
 curr_loss = 0
-for features, label in zip(train_inputs, train_labels):
-    data = torch.tensor(features, dtype=torch.float32).to(device)
-    output = model(data)
+for mel, mfcc, label in zip(train_melinputs, train_mfccinputs, train_labels):
+    #add channel dimension, check Conv2d
+    mel = torch.tensor(mel, dtype=torch.float32).to(device)
+    mfcc = torch.tensor(mfcc, dtype=torch.float32).to(device)
+    output = model(mel, mfcc)
     output = torch.squeeze(output)
     masks += torch.tensor(label[0]).to(device)
     loss = criterion(output, torch.tensor(label[1]).to(device))
@@ -84,11 +86,12 @@ for epoch in range(50):
     curr_loss = 0.0
     model.train()
     overall_accuracies = torch.zeros(7).to(device)
-    for features, label in zip(train_inputs, train_labels):
+    for mel, mfcc, label in zip(train_melinputs, train_mfccinputs, train_labels):
         optimizer.zero_grad()
-        data = torch.tensor(features, dtype=torch.float32).to(device)
+        mel = torch.tensor(mel, dtype=torch.float32).to(device)
+        mfcc = torch.tensor(mfcc, dtype=torch.float32).to(device)
         # print(data.shape)
-        output = model(data)
+        output = model(mel, mfcc)
         output = torch.squeeze(output)
         loss = criterion(output, torch.tensor(label[1]).to(device))
         loss = torch.inner(loss, torch.tensor(label[0]).to(device))
@@ -99,9 +102,10 @@ for epoch in range(50):
         
     model.eval()
     masks = torch.zeros(7).to(device)
-    for features, label in zip(train_inputs, train_labels):
-        data = torch.tensor(features, dtype=torch.float32).to(device)
-        output = model(data)
+    for mel, mfcc, label in zip(train_melinputs, train_mfccinputs, train_labels):
+        mel = torch.tensor(mel, dtype=torch.float32).to(device)
+        mfcc = torch.tensor(mfcc, dtype=torch.float32).to(device)
+        output = model(mel, mfcc)
         output = torch.squeeze(output)
         masks += torch.tensor(label[0]).to(device)
         overall_accuracies += prediction_accuracy(output, torch.tensor(label[1]).to(device), torch.tensor(label[0]).to(device))
@@ -114,9 +118,10 @@ for epoch in range(50):
 model.eval()    
 masks = torch.zeros(7).to(device)
 train_accuracies = torch.zeros(7).to(device)
-for features, label in zip(train_inputs, train_labels):
-    data = torch.tensor(features, dtype=torch.float32).to(device)
-    output = model(data)
+for mel, mfcc, label in zip(train_melinputs, train_mfccinputs, train_labels):
+    mel = torch.tensor(mel, dtype=torch.float32).to(device)
+    mfcc = torch.tensor(mfcc, dtype=torch.float32).to(device)
+    output = model(mel, mfcc)
     output = torch.squeeze(output)
     masks += torch.tensor(label[0]).to(device)
     train_accuracies += prediction_accuracy(output, torch.tensor(label[1]).to(device), torch.tensor(label[0]).to(device))
@@ -131,9 +136,10 @@ print(train_accuracies)
 
 masks = torch.zeros(7).to(device)
 test_accuracies = torch.zeros(7).to(device)
-for features, label in zip(test_inputs, test_labels):
-    data = torch.tensor(features, dtype=torch.float32).to(device)
-    output = model(data)
+for mel, mfcc, label in zip(train_melinputs, train_mfccinputs, train_labels):
+    mel = torch.tensor(mel, dtype=torch.float32).to(device)
+    mfcc = torch.tensor(mfcc, dtype=torch.float32).to(device)
+    output = model(mel, mfcc)
     output = torch.squeeze(output)
     masks += torch.tensor(label[0]).to(device)
     test_accuracies += prediction_accuracy(output, torch.tensor(label[1]).to(device), torch.tensor(label[0]).to(device))
