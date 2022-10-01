@@ -1,5 +1,7 @@
 /venv
-/mel_features
-/mfcc_features
+/old_files
 *.pkl
 *.pt
+*.mel
+*.mfcc
+*.csv
